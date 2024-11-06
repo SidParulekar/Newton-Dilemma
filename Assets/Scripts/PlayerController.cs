@@ -13,7 +13,13 @@ public class PlayerController : MonoBehaviour
 
     bool isGrounded;
 
-    float ySpeed;
+    float fallSpeed;
+
+    string gravityDirection;
+
+    int playerGravityRotate = 0;
+
+    bool changeDirection;
 
     CameraController cameraController;
 
@@ -41,22 +47,76 @@ public class PlayerController : MonoBehaviour
 
         GroundCheck();
 
-        if(isGrounded)
+        var velocity = moveDir * moveSpeed * -1;
+
+        if (isGrounded)
         {
-            ySpeed = -0.5f;
+            fallSpeed = -0.5f;
             animator.SetBool("onGround", true);
         }
 
-        else
+        if (!isGrounded)
         {
             animator.SetBool("onGround", false);
-            ySpeed += Physics.gravity.y * Time.deltaTime;
+            if(!changeDirection)
+            {
+                fallSpeed += Physics.gravity.y * Time.deltaTime;
+                velocity.y = fallSpeed;
+            }
         }
 
-        var velocity = moveDir * moveSpeed * -1;
-        velocity.y = ySpeed;
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {           
+            gravityDirection = "left";
+            playerGravityRotate -= 90;
+            changeDirection = true;          
 
-        characterController.Move( velocity * Time.deltaTime);
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            gravityDirection = "right";
+            playerGravityRotate += 90;
+            changeDirection = true;
+        }
+
+
+        else if (changeDirection)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, playerGravityRotate);
+            /*if ((playerGravityRotate / 180) % 2 != 0)
+            {
+                Physics.gravity = new Vector3(0, -9.81f, 0);
+                fallSpeed += Physics.gravity.y * Time.deltaTime;
+                velocity.y = fallSpeed;
+            }
+
+            else if ((playerGravityRotate / 180) % 2 == 0)
+            {
+                Physics.gravity = new Vector3(0, 9.81f, 0);
+                fallSpeed += Physics.gravity.y * Time.deltaTime;
+                velocity.y = fallSpeed;
+            }*/
+
+            switch (gravityDirection)
+            {
+                case "left":                               
+                    Physics.gravity = new Vector3(9.81f, 0, 0);
+                    fallSpeed += Physics.gravity.x * Time.deltaTime;
+                    velocity.x = fallSpeed;
+                    break;
+
+                case "right":
+                    Physics.gravity = new Vector3(-9.81f, 0, 0);
+                    fallSpeed += Physics.gravity.x * Time.deltaTime;
+                    velocity.x = fallSpeed;
+                    break;
+            }
+       
+        }
+       
+        characterController.Move(velocity * Time.deltaTime);
+        //rb.AddForce(velocity);
 
         if (moveAmount > 0)
         {          
