@@ -16,6 +16,8 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] Vector2 framingOffset;
 
+    int cameraRotateZ = 0;
+
 
     float rotationX;
     float rotationY;
@@ -33,9 +35,21 @@ public class CameraController : MonoBehaviour
 
         rotationX = Mathf.Clamp(rotationX, minVerticalAngle, maxVerticalAngle);
 
-        var targetRotation = Quaternion.Euler(rotationX*-1, rotationY + 180, 0);
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            cameraRotateZ -= 90;
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            cameraRotateZ += 90;
+        }
+
+        var targetRotation = Quaternion.Euler(rotationX*-1, rotationY + 180, cameraRotateZ);
         var cameraPosition = followTarget.position + new Vector3(framingOffset.x, framingOffset.y);
         transform.position = cameraPosition + Quaternion.Euler(rotationX, rotationY, 0) * new Vector3(0, cameraHeight, cameraDistance);
         transform.rotation = targetRotation;
     }
+
+    public Quaternion PlanarRotation => Quaternion.Euler(0, rotationY, cameraRotateZ);
 }
