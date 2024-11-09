@@ -16,6 +16,8 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] float rotationSpeed = 15f;
 
+    [SerializeField] Quaternion currentRotation;
+
     int playerGravityRotate = 0;
 
     private void Awake()
@@ -65,24 +67,26 @@ public class PlayerController : MonoBehaviour
         }
 
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+        targetRotation.z = HandleGravityChange();
+        currentRotation = targetRotation;
         Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed*Time.deltaTime);
-
+        //playerRotation.z = HandleGravityChange();
         transform.rotation = playerRotation;
-
+        
     }
 
-    /*private int HandleGravityChange()
+    private int HandleGravityChange()
     {
-        if (Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
         {           
           playerGravityRotate -= 90;        
         }
 
-        else if(Input.GetKey(KeyCode.RightArrow))
+        else if(Input.GetKeyDown(KeyCode.RightArrow))
         {
             playerGravityRotate += 90;            
         }    
         return playerGravityRotate;
 
-    }*/
+    }
 }
